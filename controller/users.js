@@ -21,6 +21,70 @@ const getUsers = async (req, res) => {
   }
 }
 
+
+
+const createExercises = async (req, res) => {
+  try {
+    const { _id: userId } = req.params
+    const user = await User.find({ _id: userId })
+    // console.log(user)
+    if (user.length === 0) return res.status(404).send('userId not found')
+
+    // there should only be one user, so user[0] should work
+    const { username } = user[0]
+
+    // destructure description, duration and date from form
+    let { description, duration, date } = req.body
+    // convert custom date to ISO string
+    date = date && new Date(date).toISOString()
+
+    // create an entry to DB
+    const exercise = await Exercise.create({
+      userId,
+      description,
+      duration,
+      date,
+    })
+
+    // use the returned date string because there's always one
+    // turn the date string into target format
+    const returned_date = new Date(exercise.date).toDateString()
+
+    res.status(200).json({
+      _id: userId,
+      username,
+      date: returned_date,
+      duration,
+      description,
+    })
+  } catch (error) {
+    res.status(500).json(error)
+  }
+}
+
+const getLogs = async (req, res) => {
+  // try {
+  //   const { _id } = req.params
+  //   const user = await User.find({ _id })
+  //   console.log(user)
+  //   if (user.length === 0) return res.status(404).send('user not found')
+
+  //   const { username } = user[0]
+
+  //   const exercise = await Exercise.find({ _id })
+
+  //   const date = new Date(exercise[0].date).toDateString()
+  //   console.log(date)
+
+
+
+  //   res.send('getLogs')
+  // } catch (error) {
+  //   res.status(500).json(error)
+  // }
+}
+
+// helper functions which are not part of the requirement
 const deleteUsers = async (req, res) => {
   try {
     const result = await User.deleteMany({})
@@ -30,34 +94,10 @@ const deleteUsers = async (req, res) => {
   }
 }
 
-const createExercises = async (req, res) => {
+const deleteAllExercises = async (req, res) => {
   try {
-    const { _id } = req.params
-    const user = await User.find({ _id })
-    console.log(user)
-    if (user.length === 0) return res.status(404).send('_id not found')
-
-    const { username } = user[0]
-
-    // destructure description, duration and date from form
-    const { description, duration, date } = req.body
-
-    // create an entry
-    const exercise = await Exercise.create({ _id, description, duration, date })
-
-    const { date: returned_date } = exercise
-
-    console.log(exercise)
-
-    res
-      .status(200)
-      .json({
-        _id,
-        username,
-        date: date || returned_date,
-        duration,
-        description,
-      })
+    const result = await Exercise.deleteMany({})
+    res.status(200).json(result)
   } catch (error) {
     res.status(500).json(error)
   }
@@ -68,4 +108,6 @@ module.exports = {
   getUsers,
   deleteUsers,
   createExercises,
+  getLogs,
+  deleteAllExercises,
 }
