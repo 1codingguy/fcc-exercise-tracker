@@ -1,5 +1,6 @@
 // import the model defined
 const User = require('../models/users')
+const Exercise = require('../models/exercises')
 
 const createUser = async (req, res) => {
   try {
@@ -29,8 +30,42 @@ const deleteUsers = async (req, res) => {
   }
 }
 
+const createExercises = async (req, res) => {
+  try {
+    const { _id } = req.params
+    const user = await User.find({ _id })
+    console.log(user)
+    if (user.length === 0) return res.status(404).send('_id not found')
+
+    const { username } = user[0]
+
+    // destructure description, duration and date from form
+    const { description, duration, date } = req.body
+
+    // create an entry
+    const exercise = await Exercise.create({ _id, description, duration, date })
+
+    const { date: returned_date } = exercise
+
+    console.log(exercise)
+
+    res
+      .status(200)
+      .json({
+        _id,
+        username,
+        date: date || returned_date,
+        duration,
+        description,
+      })
+  } catch (error) {
+    res.status(500).json(error)
+  }
+}
+
 module.exports = {
   createUser,
   getUsers,
   deleteUsers,
+  createExercises,
 }
