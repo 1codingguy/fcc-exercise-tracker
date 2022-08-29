@@ -21,22 +21,32 @@ const getUsers = async (req, res) => {
   }
 }
 
-
-
-const createExercises = async (req, res) => {
+const getUsername = async (req, res) => {
   try {
     const { _id: userId } = req.params
     const user = await User.find({ _id: userId })
-    // console.log(user)
     if (user.length === 0) return res.status(404).send('userId not found')
+    return { username: user[0].username, userId }
+  } catch (error) {
+    res.status(500).json(error)
+  }
+}
 
-    // there should only be one user, so user[0] should work
-    const { username } = user[0]
+const convertDate = dateString => {
+  return new Date(dateString).toDateString()
+}
+
+const createExercises = async (req, res) => {
+  try {
+    // retrieve the username with _id
+    const { username, userId } = await getUsername(req, res)
+    console.log(username, userId)
 
     // destructure description, duration and date from form
     let { description, duration, date } = req.body
-    // convert custom date to ISO string
-    date = date && new Date(date).toISOString()
+
+    // convert custom date to ISO string if date isn't undefined
+    date = date && convertDate(date)
 
     // create an entry to DB
     const exercise = await Exercise.create({
@@ -48,7 +58,7 @@ const createExercises = async (req, res) => {
 
     // use the returned date string because there's always one
     // turn the date string into target format
-    const returned_date = new Date(exercise.date).toDateString()
+    const returned_date = convertDate(exercise.date)
 
     res.status(200).json({
       _id: userId,
@@ -63,25 +73,19 @@ const createExercises = async (req, res) => {
 }
 
 const getLogs = async (req, res) => {
-  // try {
-  //   const { _id } = req.params
-  //   const user = await User.find({ _id })
-  //   console.log(user)
-  //   if (user.length === 0) return res.status(404).send('user not found')
+  try {
+    // retrieve the username with _id
+    const { username, userId } = await getUsername(req, res)
 
-  //   const { username } = user[0]
+    const exercise = await Exercise.find({ userId })
 
-  //   const exercise = await Exercise.find({ _id })
+    const date = convertDate(exercise[0].date)
+    console.log(date)
 
-  //   const date = new Date(exercise[0].date).toDateString()
-  //   console.log(date)
-
-
-
-  //   res.send('getLogs')
-  // } catch (error) {
-  //   res.status(500).json(error)
-  // }
+    res.send('getLogs')
+  } catch (error) {
+    res.status(500).json(error)
+  }
 }
 
 // helper functions which are not part of the requirement
