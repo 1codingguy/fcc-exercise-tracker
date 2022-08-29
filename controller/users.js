@@ -26,7 +26,6 @@ const createExercises = async (req, res) => {
   try {
     // retrieve the username with _id
     const { username, userId } = await getUsername(req, res)
-    console.log(username, userId)
 
     // destructure description, duration and date from form
     let { description, duration, date } = req.body
@@ -62,12 +61,24 @@ const getLogs = async (req, res) => {
   try {
     // optional query parameter
     const { from, to, limit } = req.query
-    console.log(from, to, limit)
+    // console.log(from, to, limit)
 
     // retrieve the username with _id
     const { username, userId } = await getUsername(req, res)
 
-    const exercise = await Exercise.find({ userId })
+    // userId is a must to add into the query
+    const query = { userId }
+
+    if (from) {
+      query.date = { $gte: from }
+    }
+    if (to){
+      query.date = {...query.date, $lte: to}
+    }
+  
+    const exercise = await Exercise.find(query)
+    // console.log(exercise)
+
 
     const count = exercise.length
     // limit is undefined if not specify

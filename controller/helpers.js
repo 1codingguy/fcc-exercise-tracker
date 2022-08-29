@@ -1,3 +1,5 @@
+const User = require('../models/users')
+
 const getUsername = async (req, res) => {
   try {
     const { _id: userId } = req.params
