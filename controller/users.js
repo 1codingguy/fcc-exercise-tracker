@@ -4,7 +4,8 @@ const User = require('../models/users')
 const createUser = async (req, res) => {
   try {
     const user = await User.create({ username: req.body.username })
-    res.status(200).json(user)
+    const { username, _id } = user
+    res.status(200).json({ username, _id })
   } catch (error) {
     res.status(500).json(error)
   }
@@ -12,8 +13,8 @@ const createUser = async (req, res) => {
 
 const getUsers = async (req, res) => {
   try {
-    const allUsers = await User.find({})
-    res.status(200).json(allUsers)
+    const query = await User.find({}).select(['username', '_id'])
+    res.status(200).json(query)
   } catch (error) {
     res.status(500).json(error)
   }
