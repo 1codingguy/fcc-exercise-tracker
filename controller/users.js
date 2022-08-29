@@ -29,6 +29,7 @@ const createExercises = async (req, res) => {
 
     // destructure description, duration and date from form
     let { description, duration, date } = req.body
+    duration = Number(duration)
 
     // convert custom date to ISO string if date isn't undefined
     date = date && convertDate(date)
@@ -77,12 +78,13 @@ const getLogs = async (req, res) => {
     }
   
     const exercise = await Exercise.find(query)
-    // console.log(exercise)
+    console.log(exercise)
 
 
     const count = exercise.length
     // limit is undefined if not specify
     const log = createLogArray(exercise, limit)
+    console.log(log)
 
     res.status(200).json({ username, count, _id: userId, log })
   } catch (error) {
