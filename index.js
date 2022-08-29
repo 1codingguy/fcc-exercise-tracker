@@ -15,6 +15,9 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 })
 
+// custom routes
+app.use('/api/users', users)
+
 const port = process.env.PORT || 3000
 
 const start = async () => {
