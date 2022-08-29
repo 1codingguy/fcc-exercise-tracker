@@ -1,6 +1,7 @@
 // import the model defined
 const User = require('../models/users')
 const Exercise = require('../models/exercises')
+const { getUsername, convertDate, createLogArray } = require('./helpers')
 
 const createUser = async (req, res) => {
   try {
@@ -19,21 +20,6 @@ const getUsers = async (req, res) => {
   } catch (error) {
     res.status(500).json(error)
   }
-}
-
-const getUsername = async (req, res) => {
-  try {
-    const { _id: userId } = req.params
-    const user = await User.find({ _id: userId })
-    if (user.length === 0) return res.status(404).send('userId not found')
-    return { username: user[0].username, userId }
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
-
-const convertDate = dateString => {
-  return new Date(dateString).toDateString()
 }
 
 const createExercises = async (req, res) => {
@@ -74,15 +60,20 @@ const createExercises = async (req, res) => {
 
 const getLogs = async (req, res) => {
   try {
+    // optional query parameter
+    const { from, to, limit } = req.query
+    console.log(from, to, limit)
+
     // retrieve the username with _id
     const { username, userId } = await getUsername(req, res)
 
     const exercise = await Exercise.find({ userId })
 
-    const date = convertDate(exercise[0].date)
-    console.log(date)
+    const count = exercise.length
+    // limit is undefined if not specify
+    const log = createLogArray(exercise, limit)
 
-    res.send('getLogs')
+    res.status(200).json({ username, count, _id: userId, log })
   } catch (error) {
     res.status(500).json(error)
   }
