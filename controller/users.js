@@ -62,7 +62,6 @@ const getLogs = async (req, res) => {
   try {
     // optional query parameter
     const { from, to, limit } = req.query
-    // console.log(from, to, limit)
 
     // retrieve the username with _id
     const { username, userId } = await getUsername(req, res)
@@ -73,18 +72,15 @@ const getLogs = async (req, res) => {
     if (from) {
       query.date = { $gte: from }
     }
-    if (to){
-      query.date = {...query.date, $lte: to}
+    if (to) {
+      query.date = { ...query.date, $lte: to }
     }
-  
-    const exercise = await Exercise.find(query)
-    console.log(exercise)
 
+    const exercise = await Exercise.find(query)
 
     const count = exercise.length
     // limit is undefined if not specify
     const log = createLogArray(exercise, limit)
-    console.log(log)
 
     res.status(200).json({ username, count, _id: userId, log })
   } catch (error) {
